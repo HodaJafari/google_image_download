@@ -1,13 +1,39 @@
 # google_image_download
 Downloads images from Google search results based on a specified search query string, such as "cute kittens."
 
+#### Python environment
 
-set up .venv
-install black and isort for formatting
-add file/folders to the gitignore
-add very simple test
+In order to keep the development process tidy, you should use a virtual environment when installing
+application-specific packages. There are multiple ways to set up virtual environments (e.g. using
+Pipenv), but the example below shows how you can do this using the native tools:
 
+```bash
+cd google_image_download
+python3 -m venv .venv
+```
 
+**NOTE**: Never commit your virtual environment to git, as this adds a lot of uneccesary files.
+
+Then install requirements on your virtual environment:
+
+```bash
+source .venv/bin/activate
+```
+
+Then run the following commands to install all requirements for local:
+
+```bash
+pip install -r requirements.txt
+
+```
+
+To deactivate the virtual environment you just need to run the following commands:
+
+```bash
+deactivate
+```
+### Linting
+For formatting our code we use *black* and *isort* packages.
 
 ### Building the python package
 

@@ -6,6 +6,7 @@ __pycache__/
 # Environments
 .env
 .venv
+.vscode/
 
 # Distribution / packaging
 .Python
@@ -26,3 +27,6 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+#project's folders
+downloaded/
