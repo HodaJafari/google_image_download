@@ -115,20 +115,20 @@ if __name__ == "__main__":
     query = input("Enter search query: ")
     num_images = int(input("Enter number of images to download: "))
 
-    host = input("Enter PostgreSQL Host (default: localhost): ")
-    if host == "":
+    HOST = input("Enter PostgreSQL Host (default: localhost): ")
+    if HOST == "":
         HOST = "localhost"
-    port = input("Enter PostgreSQL port (default: 5432): ")
-    if port == "":
+    PORT = input("Enter PostgreSQL port (default: 5432): ")
+    if PORT == "":
         PORT = "5432"
-    db_name = input("Enter PostgreSQL image_db (default: image_db): ")
-    if db_name == "":
+    DB_NAME = input("Enter PostgreSQL image_db (default: image_db): ")
+    if DB_NAME == "":
         DB_NAME = "image_db"
-    user = input("Enter PostgreSQL user (default: postgres): ")
-    if user == "":
+    USER = input("Enter PostgreSQL user (default: postgres): ")
+    if USER == "":
         USER = "postgres"
-    password = input("Enter PostgreSQL password (default: postgres): ")
-    if password == "":
+    PASSWORD = input("Enter PostgreSQL password (default: postgres): ")
+    if PASSWORD == "":
         PASSWORD = "postgres"
 
     asyncio.run(main(query, num_images))

@@ -51,3 +51,12 @@ Before running the project create a PostgreSQL database on your local with a tab
 ```bash
 INSERT INTO public.google_images(file_path) VALUES ($1);
 ```
+
+## Docker
+To create and run docker for this project run the following commands:
+```bash
+docker build -t google_img .
+docker run -it google_img
+```
+
+This will run the program and ask you about the local PostgreSQL info. Then connect to that db, save image path to the db but the save the file on a folder in the container.  
