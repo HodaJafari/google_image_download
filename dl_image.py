@@ -1,46 +1,72 @@
-import requests
-import os
 import asyncio
-from bs4 import BeautifulSoup
-from urllib.parse import quote
-import urllib.request
-import os
 import logging
-from databases import Database
+import os
+import urllib.request
+from urllib.parse import quote
+
+import asyncpg
 import environ
+import requests
+from bs4 import BeautifulSoup
+from PIL import Image
 
 env = environ.Env()
 
-logger = logging.Logger(__name__)
+logger = logging.getLogger(__name__)
 
-HOST = env("RDS_HOSTNAME", default="localhost")
-NAME = env("RDS_DB_NAME", default="image_db")
-PORT = env("RDS_PORT", default="5432")
-USER = env("RDS_USERNAME", default="postgres")
-PASSWORD = env("RDS_PASSWORD", default="postgres")
-
-database = Database(f"postgresql://{USER}:{PASSWORD}@{HOST}:{PORT}/{NAME}")
+USER = "postgres"
+PASSWORD = "postgres"
+HOST = "localhost"
+PORT = "5432"
+DB_NAME = "image_db"
 
 
 async def save_to_db(file_path: str):
-    query = """INSERT INTO public.google_images(file_path) VALUES (:file_path);"""
+    query = """INSERT INTO public.google_images(file_path) VALUES ($1);"""
 
     try:
-        await database.connect()
+        conn = await asyncpg.connect(
+            user=USER, password=PASSWORD, database=DB_NAME, host=HOST, port=PORT
+        )
         logger.info("Connected to Database")
-        await database.execute(query=query, values={"file_path": file_path})
-        await database.disconnect()
+
+        await conn.execute(query, file_path)
+        await conn.close()
         logger.info("Disconnecting from Database")
+
     except Exception as ex:
         logger.exception(ex)
+        return False
+    return True
 
 
 async def download_image(url: str, filename: str):
     try:
         urllib.request.urlretrieve(url, filename)
-        await save_to_db(filename)
     except Exception as ex:
         logger.exception(ex)
+        return False
+    return True
+
+
+async def resize_image(image_path, width=100, height=100):
+    # Resize the image
+    try:
+        image = Image.open(image_path)
+        resized_image = image.thumbnail((width, height))
+        if resized_image:
+            resized_image.save(image_path)
+            logger.info(f"Image resized successfully.")
+    except Exception as ex:
+        logger.exception(ex)
+        return False
+    return True
+
+
+async def save_image(url: str, filename: str):
+    await download_image(url, filename)
+    await resize_image(filename)
+    await save_to_db(filename)
 
 
 async def get_image_urls(query: str, num_images: int):
@@ -78,15 +104,31 @@ async def main(query: str, num_images: int):
         os.makedirs(f"downloaded/{query}")
 
     image_urls = await get_image_urls(query, num_images)
-    tasks = []
+    tasks = set()
     for i, url in enumerate(image_urls):
         filename = f"downloaded/{query}/{i+1}.jpg"
-        tasks.append(asyncio.create_task(download_image(url, filename)))
+        tasks.add(asyncio.create_task(save_image(url, filename)))
     await asyncio.gather(*tasks)
 
 
 if __name__ == "__main__":
     query = input("Enter search query: ")
     num_images = int(input("Enter number of images to download: "))
+
+    host = input("Enter PostgreSQL Host (default: localhost): ")
+    if host == "":
+        HOST = "localhost"
+    port = input("Enter PostgreSQL port (default: 5432): ")
+    if port == "":
+        PORT = "5432"
+    db_name = input("Enter PostgreSQL image_db (default: image_db): ")
+    if db_name == "":
+        DB_NAME = "image_db"
+    user = input("Enter PostgreSQL user (default: postgres): ")
+    if user == "":
+        USER = "postgres"
+    password = input("Enter PostgreSQL password (default: postgres): ")
+    if password == "":
+        PASSWORD = "postgres"
 
     asyncio.run(main(query, num_images))

@@ -44,3 +44,10 @@ cd google_iamge_download
 pip install -e .
 python setup.py sdist --formats=gztar
 ```
+
+## Database
+Before running the project create a PostgreSQL database on your local with a table name  *google_images* and with a column name *file_path*. Because we are running this query in the program:
+
+```bash
+INSERT INTO public.google_images(file_path) VALUES ($1);
+```

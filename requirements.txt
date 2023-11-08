@@ -1,4 +1,5 @@
+asyncpg
 beautifulsoup4
-databases[postgresql]
 requests
+pillow
 python-environ
